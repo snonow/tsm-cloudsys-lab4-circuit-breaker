@@ -1,0 +1,14 @@
+# Kubernetes / tooling
+*.log
+*.tmp
+
+# Secrets
+docker-token
+*.secret
+.env
+
+# OS
+.DS_Store
+
+# Node / misc
+node_modules/

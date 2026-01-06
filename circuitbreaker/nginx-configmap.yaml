@@ -1,0 +1,26 @@
+# ConfigMap for customizing an NGINX image
+# When mounted into a container it will appear as a file named default.conf.
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: nginx-configuration
+  labels:
+    app: nginx-plus
+data:
+  default.conf: |  
+    upstream backend {
+      zone backend 64k;
+      server mock-service:80;
+      server fallback-service:80 backup;
+    }
+    match conditions {
+      status 200-399;
+    }
+    server {
+      listen 80;
+      location / {
+        proxy_pass http://backend;
+        health_check uri=/ready interval=3s fails=1 passes=1;
+      }
+    }
+

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: circuitbreaker-deployment
+spec:
+  selector:
+    matchLabels:
+      app: circuitbreaker
+  replicas: 1 
+  template: 
+    metadata:
+      labels:
+        app: circuitbreaker
+    spec:
+      containers:
+      - image: grafolytics/nginxplus
+        name: circuitbreaker
+        ports:
+        - containerPort: 80
+          
+        # Add a special volumeMount to the NGINX Plus image that will
+        # use a ConfigMap (see nginx-configmap.yaml) to override the
+        # default NGINX configuration settings
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: config-volume
+        configMap:
+          name: nginx-configuration
+      imagePullSecrets:
+      - name: regcred
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: circuitbreaker-service
+  labels:
+    app: circuitbreaker
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: circuitbreaker

@@ -1,0 +1,28 @@
+# Mock webserver deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mock-webserver-deployment
+spec:
+  # For simplicity we'll just fire up a single replica
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mock-webserver
+  template:
+    metadata:
+      labels:
+        app: mock-webserver
+    spec:
+      containers:
+      - name: mock-webserver
+        image: grafolytics/mock-webserver
+        ports:
+        - containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /alive
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
